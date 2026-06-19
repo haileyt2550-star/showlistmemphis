@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getDB } from "@/lib/db";
+import { getDB } from "@/lib/db-cf";
 
 export const runtime = "edge";
 
@@ -7,9 +7,9 @@ const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json() as { email?: string; genres?: string[] };
     const email = (body.email ?? "").trim().toLowerCase();
-    const genres = body.genres ? (body.genres as string[]).join(",") : null;
+    const genres = body.genres ? body.genres.join(",") : null;
 
     if (!emailRe.test(email)) {
       return Response.json({ error: "Invalid email address" }, { status: 400 });

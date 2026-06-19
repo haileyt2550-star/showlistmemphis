@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getDB } from "@/lib/db";
+import { getDB } from "@/lib/db-cf";
 
 export const runtime = "edge";
 

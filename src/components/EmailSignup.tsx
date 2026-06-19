@@ -21,7 +21,7 @@ export default function EmailSignup() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await res.json() as any;
         throw new Error(data.error ?? "Something went wrong");
       }
 

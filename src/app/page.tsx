@@ -35,7 +35,7 @@ export default function HomePage() {
       });
 
       const res = await fetch(`/api/events?${params}`);
-      const data = await res.json();
+      const data = await res.json() as any;
       setEvents(data.events ?? []);
     } catch (err) {
       console.error(err);

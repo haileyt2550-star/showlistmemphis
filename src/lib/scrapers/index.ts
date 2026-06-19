@@ -1,4 +1,4 @@
-import { getDB } from "@/lib/db";
+import { getDB } from "@/lib/db-cf";
 import { VENUES } from "@/lib/venues";
 import { fetchTicketmasterEvents } from "./ticketmaster";
 import { fetchBandsintownEvents } from "./bandsintown";

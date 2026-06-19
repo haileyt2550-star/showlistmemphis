@@ -29,7 +29,7 @@ export default function MapPage() {
       `/api/events?start=${start.toISOString()}&end=${end.toISOString()}`
     )
       .then((r) => r.json())
-      .then((d) => setEvents(d.events ?? []))
+      .then((d: any) => setEvents(d.events ?? []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);

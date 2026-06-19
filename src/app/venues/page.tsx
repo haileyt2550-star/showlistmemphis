@@ -1,29 +1,38 @@
-import { prisma } from "@/lib/db";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MapPin, ExternalLink } from "lucide-react";
+import { MapPin, ExternalLink, Loader2 } from "lucide-react";
 
-export const revalidate = 3600; // refresh every hour
+interface VenueWithCount {
+  id: string;
+  name: string;
+  slug: string;
+  address: string;
+  city: string;
+  state: string;
+  website: string | null;
+  capacity: number | null;
+  _count?: { events: number };
+}
 
-export default async function VenuesPage() {
-  const venues = await prisma.venue.findMany({
-    where: { isActive: true },
-    include: {
-      _count: { select: { events: true } },
-    },
-    orderBy: { name: "asc" },
-  });
+export default function VenuesPage() {
+  const [venues, setVenues] = useState<VenueWithCount[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/venues")
+      .then((r) => r.json())
+      .then((d: any) => setVenues(d.venues ?? []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   const memphis = venues.filter((v) => v.state === "TN");
   const mississippi = venues.filter((v) => v.state === "MS");
   const other = venues.filter((v) => v.state !== "TN" && v.state !== "MS");
 
-  function VenueSection({
-    title,
-    items,
-  }: {
-    title: string;
-    items: typeof venues;
-  }) {
+  function VenueSection({ title, items }: { title: string; items: VenueWithCount[] }) {
     if (items.length === 0) return null;
     return (
       <div className="mb-10">
@@ -54,18 +63,13 @@ export default async function VenuesPage() {
                   </a>
                 )}
               </div>
-
               <div className="flex items-center gap-1.5 text-xs text-[#6B6880] mb-3">
                 <MapPin className="w-3 h-3 text-[#C9A84C] shrink-0" />
-                <span>
-                  {v.address}, {v.city}, {v.state}
-                </span>
+                <span>{v.address}, {v.city}, {v.state}</span>
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="text-xs text-[#C9A84C] font-semibold">
-                  {v._count.events} upcoming show
-                  {v._count.events !== 1 ? "s" : ""}
+                  {v._count?.events ?? 0} upcoming show{(v._count?.events ?? 0) !== 1 ? "s" : ""}
                 </span>
                 {v.capacity && (
                   <span className="text-xs text-[#4A4858]">
@@ -96,21 +100,26 @@ export default async function VenuesPage() {
 
       <div className="divider-gold mb-8" />
 
-      <VenueSection title="Memphis, TN" items={memphis} />
-      <VenueSection title="Mississippi" items={mississippi} />
-      {other.length > 0 && <VenueSection title="Other" items={other} />}
-
-      {venues.length === 0 && (
-        <p className="text-[#6B6880] text-sm text-center py-16">
-          No venues yet. Run a scrape to populate the database.
-        </p>
+      {loading ? (
+        <div className="flex items-center justify-center py-24 text-[#6B6880]">
+          <Loader2 className="w-6 h-6 animate-spin mr-3" />
+          <span className="text-sm">Loading venues…</span>
+        </div>
+      ) : (
+        <>
+          <VenueSection title="Memphis, TN" items={memphis} />
+          <VenueSection title="Mississippi" items={mississippi} />
+          {other.length > 0 && <VenueSection title="Other" items={other} />}
+          {venues.length === 0 && (
+            <p className="text-[#6B6880] text-sm text-center py-16">
+              No venues yet. Run a scrape to populate the database.
+            </p>
+          )}
+        </>
       )}
 
       <div className="mt-8 text-center">
-        <Link
-          href="/"
-          className="text-sm text-[#C9A84C] hover:text-[#DDB85C] transition-colors"
-        >
+        <Link href="/" className="text-sm text-[#C9A84C] hover:text-[#DDB85C] transition-colors">
           ← Back to all shows
         </Link>
       </div>
