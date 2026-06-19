@@ -1,0 +1,12 @@
+name = "showlistmemphis"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[vars]
+BANDSINTOWN_APP_ID = "showlistmemphis"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "showlistmemphis-db"
+database_id = "bc445229-a1fa-40d1-a502-9079aba8b098"
