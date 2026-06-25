@@ -37,7 +37,7 @@ export default function VenuesPage() {
     return (
       <div className="mb-10">
         <h2
-          className="text-2xl tracking-widest text-[#C9A84C] mb-4"
+          className="text-2xl tracking-widest text-[#E8608A] mb-4"
           style={{ fontFamily: "var(--font-bebas)" }}
         >
           {title}
@@ -46,10 +46,10 @@ export default function VenuesPage() {
           {items.map((v) => (
             <div
               key={v.id}
-              className="bg-[#141420] border border-[#2A2A40] rounded-lg p-4 hover:border-[#C9A84C]/40 transition-colors"
+              className="bg-[#13112A] border border-[#272348] rounded-2xl p-4 hover:border-[#E8608A]/30 hover:-translate-y-0.5 hover:shadow-[0_6px_24px_#E8608A10] transition-all duration-200"
             >
               <div className="flex items-start justify-between gap-2 mb-2">
-                <h3 className="font-semibold text-[#EDE9E0] text-sm leading-snug">
+                <h3 className="font-semibold text-[#F2ECE0] text-sm leading-snug">
                   {v.name}
                 </h3>
                 {v.website && (
@@ -57,22 +57,22 @@ export default function VenuesPage() {
                     href={v.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#4A9EE8] hover:text-[#6BB8F4] shrink-0 mt-0.5"
+                    className="text-[#A48BF0] hover:text-[#C4B0F8] shrink-0 mt-0.5 transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-[#6B6880] mb-3">
-                <MapPin className="w-3 h-3 text-[#C9A84C] shrink-0" />
+              <div className="flex items-center gap-1.5 text-xs text-[#7268A0] mb-3">
+                <MapPin className="w-3 h-3 text-[#E8608A] shrink-0" />
                 <span>{v.address}, {v.city}, {v.state}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#C9A84C] font-semibold">
+                <span className="text-xs text-[#E8608A] font-semibold">
                   {v._count?.events ?? 0} upcoming show{(v._count?.events ?? 0) !== 1 ? "s" : ""}
                 </span>
                 {v.capacity && (
-                  <span className="text-xs text-[#4A4858]">
+                  <span className="text-xs text-[#4A4570]">
                     Cap. {v.capacity.toLocaleString()}
                   </span>
                 )}
@@ -85,24 +85,24 @@ export default function VenuesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div className="mb-8">
-        <p className="text-xs font-bold tracking-[0.4em] text-[#C9A84C] mb-2 uppercase">
+        <p className="text-[11px] font-bold tracking-[0.45em] text-[#E8608A] mb-2 uppercase">
           Mid-South
         </p>
         <h1
-          className="text-5xl text-[#EDE9E0] leading-none tracking-wide"
+          className="text-5xl text-[#F2ECE0] leading-none tracking-wide"
           style={{ fontFamily: "var(--font-bebas)" }}
         >
           Venues
         </h1>
       </div>
 
-      <div className="divider-gold mb-8" />
+      <div className="divider-rose mb-8" />
 
       {loading ? (
-        <div className="flex items-center justify-center py-24 text-[#6B6880]">
-          <Loader2 className="w-6 h-6 animate-spin mr-3" />
+        <div className="flex items-center justify-center py-24 text-[#7268A0]">
+          <Loader2 className="w-5 h-5 animate-spin mr-3" />
           <span className="text-sm">Loading venues…</span>
         </div>
       ) : (
@@ -111,7 +111,7 @@ export default function VenuesPage() {
           <VenueSection title="Mississippi" items={mississippi} />
           {other.length > 0 && <VenueSection title="Other" items={other} />}
           {venues.length === 0 && (
-            <p className="text-[#6B6880] text-sm text-center py-16">
+            <p className="text-[#7268A0] text-sm text-center py-16">
               No venues yet. Run a scrape to populate the database.
             </p>
           )}
@@ -119,7 +119,7 @@ export default function VenuesPage() {
       )}
 
       <div className="mt-8 text-center">
-        <Link href="/" className="text-sm text-[#C9A84C] hover:text-[#DDB85C] transition-colors">
+        <Link href="/" className="text-sm text-[#E8608A] hover:text-[#F07095] transition-colors">
           ← Back to all shows
         </Link>
       </div>

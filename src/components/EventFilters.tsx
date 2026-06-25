@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { clsx } from "clsx";
 import type { Genre } from "@/types";
@@ -40,7 +40,7 @@ export default function EventFilters({ onChange }: Props) {
   const [genre, setGenre] = useState<Genre | null>(null);
   const [popupOnly, setPopupOnly] = useState(false);
   const [q, setQ] = useState("");
-  const [activePreset, setActivePreset] = useState(3); // "Next 30 Days"
+  const [activePreset, setActivePreset] = useState(3);
   const [showGenres, setShowGenres] = useState(false);
 
   function applyPreset(days: number, idx: number) {
@@ -51,13 +51,7 @@ export default function EventFilters({ onChange }: Props) {
     emit(today, newEnd, genre, popupOnly, q);
   }
 
-  function emit(
-    s: Date,
-    e: Date,
-    g: Genre | null,
-    popup: boolean,
-    search: string
-  ) {
+  function emit(s: Date, e: Date, g: Genre | null, popup: boolean, search: string) {
     onChange({ start: s, end: e, genre: g, popupOnly: popup, q: search });
   }
 
@@ -65,6 +59,7 @@ export default function EventFilters({ onChange }: Props) {
     const next = genre === g ? null : g;
     setGenre(next);
     emit(start, end, next, popupOnly, q);
+    if (next) setShowGenres(false);
   }
 
   function handleSearch(val: string) {
@@ -92,23 +87,23 @@ export default function EventFilters({ onChange }: Props) {
 
   return (
     <div className="space-y-3">
-      {/* Search row */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6880]" />
+      {/* Search + toggles row */}
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#666666]" />
           <input
             type="text"
             value={q}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search artists, venues…"
-            className="w-full pl-9 pr-3 py-2.5 bg-[#141420] border border-[#2A2A40] rounded-lg text-sm text-[#EDE9E0] placeholder-[#4A4858] focus:outline-none focus:border-[#C9A84C] transition-colors"
+            className="w-full pl-9 pr-3 py-2 bg-[#181818] border border-[#2A2A2A] rounded-full text-sm text-[#F0F0F0] placeholder-[#4A4570] focus:outline-none focus:border-[#E8608A]/60 transition-colors"
           />
           {q && (
             <button
               onClick={() => handleSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B6880] hover:text-[#EDE9E0]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666666] hover:text-[#F0F0F0]"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3 h-3" />
             </button>
           )}
         </div>
@@ -116,23 +111,22 @@ export default function EventFilters({ onChange }: Props) {
         <button
           onClick={() => setShowGenres(!showGenres)}
           className={clsx(
-            "flex items-center gap-1.5 px-3 py-2.5 border rounded-lg text-sm transition-colors",
+            "px-4 py-2 rounded-full text-sm font-medium border transition-all duration-150",
             showGenres || genre
-              ? "border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10"
-              : "border-[#2A2A40] text-[#8B8680] hover:border-[#C9A84C]/50 hover:text-[#EDE9E0] bg-[#141420]"
+              ? "border-[#E8608A]/60 text-[#E8608A] bg-[#E8608A]/10"
+              : "border-[#2A2A2A] text-[#666666] hover:border-[#E8608A]/40 hover:text-[#F0F0F0] bg-[#181818]"
           )}
         >
-          <SlidersHorizontal className="w-4 h-4" />
           {genre ?? "Genre"}
         </button>
 
         <button
           onClick={() => handlePopup(!popupOnly)}
           className={clsx(
-            "px-3 py-2.5 border rounded-lg text-sm transition-colors",
+            "px-4 py-2 rounded-full text-sm font-medium border transition-all duration-150",
             popupOnly
-              ? "border-[#4A9EE8] text-[#4A9EE8] bg-[#4A9EE8]/10"
-              : "border-[#2A2A40] text-[#8B8680] hover:border-[#4A9EE8]/50 hover:text-[#EDE9E0] bg-[#141420]"
+              ? "border-[#E8608A]/60 text-[#E8608A] bg-[#E8608A]/10"
+              : "border-[#2A2A2A] text-[#666666] hover:border-[#E8608A]/40 hover:text-[#F0F0F0] bg-[#181818]"
           )}
         >
           Pop-ups
@@ -141,24 +135,24 @@ export default function EventFilters({ onChange }: Props) {
         {hasFilters && (
           <button
             onClick={clearAll}
-            className="px-3 py-2.5 text-xs text-[#6B6880] hover:text-[#EDE9E0] transition-colors"
+            className="px-3 py-2 text-xs text-[#666666] hover:text-[#F0F0F0] transition-colors"
           >
-            Clear
+            Clear all
           </button>
         )}
       </div>
 
       {/* Date presets */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap items-center">
         {DATE_PRESETS.map(({ label, days }, idx) => (
           <button
             key={label}
             onClick={() => applyPreset(days, idx)}
             className={clsx(
-              "px-3 py-1.5 text-xs rounded-full border transition-colors",
+              "px-3 py-1.5 text-xs rounded-full border transition-all duration-150 font-medium",
               activePreset === idx
-                ? "border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10"
-                : "border-[#2A2A40] text-[#6B6880] hover:border-[#C9A84C]/50 hover:text-[#EDE9E0]"
+                ? "border-[#E8608A]/60 text-[#E8608A] bg-[#E8608A]/10"
+                : "border-[#2A2A2A] text-[#666666] hover:border-[#2A2A2A] hover:text-[#F0F0F0]"
             )}
           >
             {label}
@@ -166,7 +160,7 @@ export default function EventFilters({ onChange }: Props) {
         ))}
 
         {/* Custom date range */}
-        <div className="flex items-center gap-1.5 ml-auto text-xs text-[#6B6880]">
+        <div className="flex items-center gap-1.5 ml-auto text-xs text-[#666666]">
           <input
             type="date"
             value={format(start, "yyyy-MM-dd")}
@@ -176,7 +170,7 @@ export default function EventFilters({ onChange }: Props) {
               setActivePreset(-1);
               emit(d, end, genre, popupOnly, q);
             }}
-            className="bg-[#141420] border border-[#2A2A40] rounded px-2 py-1 text-xs text-[#EDE9E0] focus:outline-none focus:border-[#C9A84C]"
+            className="bg-[#181818] border border-[#2A2A2A] rounded-lg px-2 py-1 text-xs text-[#F0F0F0] focus:outline-none focus:border-[#E8608A]/50"
           />
           <span>–</span>
           <input
@@ -188,7 +182,7 @@ export default function EventFilters({ onChange }: Props) {
               setActivePreset(-1);
               emit(start, d, genre, popupOnly, q);
             }}
-            className="bg-[#141420] border border-[#2A2A40] rounded px-2 py-1 text-xs text-[#EDE9E0] focus:outline-none focus:border-[#C9A84C]"
+            className="bg-[#181818] border border-[#2A2A2A] rounded-lg px-2 py-1 text-xs text-[#F0F0F0] focus:outline-none focus:border-[#E8608A]/50"
           />
         </div>
       </div>
@@ -201,10 +195,10 @@ export default function EventFilters({ onChange }: Props) {
               key={g}
               onClick={() => handleGenre(g)}
               className={clsx(
-                "px-3 py-1 text-xs rounded-full border transition-colors",
+                "px-3 py-1.5 text-xs rounded-full border transition-all duration-150 font-medium",
                 genre === g
-                  ? "border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10"
-                  : "border-[#2A2A40] text-[#6B6880] hover:text-[#EDE9E0] hover:border-[#2A2A40]"
+                  ? "border-[#E8608A]/60 text-[#E8608A] bg-[#E8608A]/10"
+                  : "border-[#2A2A2A] text-[#666666] hover:text-[#F0F0F0] hover:border-[#2A2A2A]"
               )}
             >
               {g}

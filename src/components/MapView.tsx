@@ -5,9 +5,10 @@ import type { EventWithVenue } from "@/types";
 
 interface Props {
   events: EventWithVenue[];
+  onVenueSelect?: (venueId: string) => void;
+  selectedVenueId?: string | null;
 }
 
-// Grouped by venue for cleaner map markers
 interface VenueGroup {
   venueId: string;
   venueName: string;
@@ -40,103 +41,99 @@ function groupByVenue(events: EventWithVenue[]): VenueGroup[] {
   return Array.from(map.values());
 }
 
-export default function MapView({ events }: Props) {
+export default function MapView({ events, onVenueSelect, selectedVenueId }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    // Dynamically import Leaflet so it doesn't SSR
+    if (!document.querySelector("link[data-leaflet-css]")) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.setAttribute("data-leaflet-css", "");
+      link.href =
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";
+      document.head.appendChild(link);
+    }
+
     import("leaflet").then((L) => {
-      // Fix default marker icons (webpack asset issue)
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-        iconUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-        shadowUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+      if (!mapRef.current) return;
+
+      const map = L.map(mapRef.current, {
+        center: [35.1495, -90.0489],
+        zoom: 12,
+        zoomControl: false,
       });
 
-      const map = L.map(mapRef.current!, {
-        center: [35.1495, -90.0489], // Memphis center
-        zoom: 11,
-        zoomControl: true,
-      });
+      L.control.zoom({ position: "bottomright" }).addTo(map);
 
       L.tileLayer(
         "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
         {
           attribution:
-            '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+            '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
           subdomains: "abcd",
           maxZoom: 20,
         }
       ).addTo(map);
 
-      const goldIcon = L.divIcon({
-        className: "",
-        html: `<div style="
-          width:28px;height:28px;
-          background:#C9A84C;
-          border:2px solid #0D0D18;
-          border-radius:50% 50% 50% 0;
-          transform:rotate(-45deg);
-          box-shadow:0 2px 8px rgba(201,168,76,0.5);
-        "></div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 28],
-        popupAnchor: [0, -32],
-      });
-
-      const blueIcon = L.divIcon({
-        className: "",
-        html: `<div style="
-          width:22px;height:22px;
-          background:#4A9EE8;
-          border:2px solid #0D0D18;
-          border-radius:50% 50% 50% 0;
-          transform:rotate(-45deg);
-          box-shadow:0 2px 8px rgba(74,158,232,0.4);
-        "></div>`,
-        iconSize: [22, 22],
-        iconAnchor: [11, 22],
-        popupAnchor: [0, -26],
-      });
-
       const groups = groupByVenue(events);
 
       for (const group of groups) {
-        const hasPopUp = group.events.some((e) => e.isPopUp);
-        const icon = hasPopUp ? blueIcon : goldIcon;
+        const count = group.events.length;
+        const isPopUp = group.events.every((e) => e.isPopUp);
+        const color = isPopUp ? "#A48BF0" : "#E8608A";
+
+        const icon = L.divIcon({
+          className: "",
+          html: `<div style="
+            width:36px;height:36px;
+            background:${color};
+            border:2.5px solid #0B0917;
+            border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            font-size:12px;font-weight:800;font-family:Inter,system-ui,sans-serif;
+            color:#0B0917;
+            box-shadow:0 0 0 4px ${color}28,0 4px 14px rgba(0,0,0,0.75);
+            cursor:pointer;
+            transition:transform 0.15s,box-shadow 0.15s;
+          "
+          onmouseenter="this.style.transform='scale(1.2)';this.style.boxShadow='0 0 0 6px ${color}40,0 6px 20px rgba(0,0,0,0.8)'"
+          onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='0 0 0 4px ${color}28,0 4px 14px rgba(0,0,0,0.75)'"
+          >${count}</div>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
+          popupAnchor: [0, -22],
+        });
 
         const popupHtml = `
-          <div style="font-family:Inter,sans-serif;min-width:200px;max-width:260px;">
-            <p style="font-weight:700;color:#EDE9E0;font-size:14px;margin:0 0 4px 0;">${group.venueName}</p>
-            <p style="color:#6B6880;font-size:11px;margin:0 0 10px 0;">${group.city}, ${group.state}</p>
-            <div style="space-y:4px;">
+          <div style="font-family:Inter,system-ui,sans-serif;min-width:220px;max-width:280px;">
+            <p style="font-weight:700;color:#F2ECE0;font-size:14px;margin:0 0 2px 0;line-height:1.3;">${group.venueName}</p>
+            <p style="color:#7268A0;font-size:11px;margin:0 0 10px 0;">${group.city}, ${group.state}</p>
+            <div>
               ${group.events
-                .slice(0, 5)
+                .slice(0, 4)
                 .map(
                   (ev) => `
                 <a href="${ev.ticketUrl ?? "#"}" target="_blank" rel="noopener"
-                   style="display:block;padding:4px 6px;background:#1C1C2E;border-radius:4px;margin-bottom:3px;text-decoration:none;">
-                  <span style="color:#C9A84C;font-size:10px;display:block;">${new Date(ev.date).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>
-                  <span style="color:#EDE9E0;font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ev.title}</span>
+                   style="display:block;padding:5px 8px;background:#1B1838;border-radius:8px;margin-bottom:3px;text-decoration:none;border:1px solid #272348;">
+                  <span style="color:${color};font-size:10px;display:block;font-weight:600;margin-bottom:1px;">
+                    ${new Date(ev.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                  </span>
+                  <span style="color:#F2ECE0;font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ev.title}</span>
                 </a>`
                 )
                 .join("")}
               ${
-                group.events.length > 5
-                  ? `<p style="color:#6B6880;font-size:10px;margin:4px 0 0 0;">+${group.events.length - 5} more shows</p>`
+                group.events.length > 4
+                  ? `<p style="color:#7268A0;font-size:10px;margin:5px 0 0 0;">+${group.events.length - 4} more shows — click pin for full list</p>`
                   : ""
               }
             </div>
             ${
               group.website
-                ? `<a href="${group.website}" target="_blank" rel="noopener" style="color:#4A9EE8;font-size:11px;display:block;margin-top:8px;">Venue website →</a>`
+                ? `<a href="${group.website}" target="_blank" rel="noopener" style="color:#A48BF0;font-size:11px;display:block;margin-top:8px;text-decoration:none;">Visit venue →</a>`
                 : ""
             }
           </div>
@@ -144,8 +141,9 @@ export default function MapView({ events }: Props) {
 
         L.marker([group.lat, group.lng], { icon })
           .addTo(map)
+          .on("click", () => onVenueSelect?.(group.venueId))
           .bindPopup(popupHtml, {
-            maxWidth: 280,
+            maxWidth: 300,
             className: "showlist-popup",
           });
       }
@@ -161,32 +159,53 @@ export default function MapView({ events }: Props) {
     };
   }, []);
 
-  // Update markers when events change
-  useEffect(() => {
-    // Full rebuild is fine for now since events load once
-  }, [events]);
-
   return (
     <>
       <style>{`
         .showlist-popup .leaflet-popup-content-wrapper {
-          background: #141420;
-          border: 1px solid #2A2A40;
-          border-radius: 8px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+          background: #13112A;
+          border: 1px solid #272348;
+          border-radius: 14px;
+          box-shadow: 0 16px 40px rgba(0,0,0,0.85);
+          padding: 0;
+        }
+        .showlist-popup .leaflet-popup-content {
+          margin: 14px 14px;
         }
         .showlist-popup .leaflet-popup-tip {
-          background: #141420;
+          background: #13112A;
         }
         .showlist-popup .leaflet-popup-close-button {
-          color: #6B6880 !important;
+          color: #7268A0 !important;
+          font-size: 18px !important;
+          padding: 6px 8px !important;
+          top: 2px !important;
+          right: 2px !important;
+        }
+        .leaflet-control-zoom a {
+          background: #13112A !important;
+          border-color: #272348 !important;
+          color: #F2ECE0 !important;
+          font-size: 16px !important;
+        }
+        .leaflet-control-zoom a:hover {
+          background: #1B1838 !important;
+          color: #E8608A !important;
+        }
+        .leaflet-control-zoom-in {
+          border-bottom: 1px solid #272348 !important;
+        }
+        .leaflet-control-attribution {
+          background: rgba(11,9,23,0.8) !important;
+          color: #4A4570 !important;
+          font-size: 10px !important;
+          backdrop-filter: blur(4px);
+        }
+        .leaflet-control-attribution a {
+          color: #7268A0 !important;
         }
       `}</style>
-      <div
-        ref={mapRef}
-        className="w-full rounded-xl overflow-hidden border border-[#2A2A40]"
-        style={{ height: "600px" }}
-      />
+      <div ref={mapRef} className="w-full h-full" />
     </>
   );
 }
