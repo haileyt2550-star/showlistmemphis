@@ -22,24 +22,22 @@ export default function CalendarPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-      <div className="mb-8">
-        <p className="text-[11px] font-bold tracking-[0.45em] text-[#E8608A] mb-2 uppercase">
-          Schedule
-        </p>
+      <div className="mb-10">
         <h1
-          className="text-5xl text-[#F2ECE0] leading-none tracking-wide"
+          className="text-5xl sm:text-7xl text-[#F0F0F0] leading-none tracking-wide"
           style={{ fontFamily: "var(--font-bebas)" }}
         >
           Calendar
         </h1>
+        <p className="text-[#555555] text-sm mt-2">Memphis and surrounding area</p>
       </div>
 
       <div className="divider-rose mb-8" />
 
       {loading ? (
-        <div className="flex items-center justify-center py-24 text-[#7268A0]">
-          <Loader2 className="w-5 h-5 animate-spin mr-3" />
-          <span className="text-sm">Loading calendar…</span>
+        <div className="flex items-center justify-center py-24 text-[#555555]">
+          <Loader2 className="w-4 h-4 animate-spin mr-3" />
+          <span className="text-sm">Loading…</span>
         </div>
       ) : (
         <CalendarView events={events} />

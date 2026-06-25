@@ -16,10 +16,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ShowList Memphis — Every Show. One Place.",
-  description:
-    "The Memphis area's definitive concert and show calendar. FedExForum, Orpheum, Minglewood, Levitt Shell, BankPlus Amphitheater, and every venue in between.",
-  keywords: ["Memphis concerts", "Memphis shows", "Memphis music", "FedExForum events", "Beale Street"],
+  title: "ShowList Memphis",
+  description: "Concert and show listings for Memphis and the Mid-South.",
+  keywords: ["Memphis concerts", "Memphis shows", "Memphis music", "Memphis events"],
 };
 
 export default function RootLayout({

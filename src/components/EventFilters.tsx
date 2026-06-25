@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { Search, X } from "lucide-react";
-import { format, addDays } from "date-fns";
+import { addDays } from "date-fns";
 import { clsx } from "clsx";
 import type { Genre } from "@/types";
 
 const GENRES: Genre[] = [
   "Blues", "R&B", "Soul", "Hip-Hop", "Rock", "Country",
-  "Jazz", "Gospel", "Pop", "Folk", "Electronic", "Metal", "Comedy", "Other",
+  "Jazz", "Gospel", "Pop", "Folk", "Indie", "Electronic", "Metal", "Comedy", "Other",
 ];
 
 const DATE_PRESETS = [
@@ -35,7 +35,6 @@ export default function EventFilters({ onChange }: Props) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [start, setStart] = useState<Date>(today);
   const [end, setEnd] = useState<Date>(addDays(today, 30));
   const [genre, setGenre] = useState<Genre | null>(null);
   const [popupOnly, setPopupOnly] = useState(false);
@@ -45,7 +44,6 @@ export default function EventFilters({ onChange }: Props) {
 
   function applyPreset(days: number, idx: number) {
     const newEnd = days === 0 ? addDays(today, 1) : addDays(today, days);
-    setStart(today);
     setEnd(newEnd);
     setActivePreset(idx);
     emit(today, newEnd, genre, popupOnly, q);
@@ -58,18 +56,18 @@ export default function EventFilters({ onChange }: Props) {
   function handleGenre(g: Genre) {
     const next = genre === g ? null : g;
     setGenre(next);
-    emit(start, end, next, popupOnly, q);
+    emit(today, end, next, popupOnly, q);
     if (next) setShowGenres(false);
   }
 
   function handleSearch(val: string) {
     setQ(val);
-    emit(start, end, genre, popupOnly, val);
+    emit(today, end, genre, popupOnly, val);
   }
 
   function handlePopup(val: boolean) {
     setPopupOnly(val);
-    emit(start, end, genre, val, q);
+    emit(today, end, genre, val, q);
   }
 
   function clearAll() {
@@ -78,7 +76,6 @@ export default function EventFilters({ onChange }: Props) {
     setQ("");
     setActivePreset(3);
     const newEnd = addDays(today, 30);
-    setStart(today);
     setEnd(newEnd);
     emit(today, newEnd, null, false, "");
   }
@@ -96,7 +93,7 @@ export default function EventFilters({ onChange }: Props) {
             value={q}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search artists, venues…"
-            className="w-full pl-9 pr-3 py-2 bg-[#181818] border border-[#2A2A2A] rounded-full text-sm text-[#F0F0F0] placeholder-[#4A4570] focus:outline-none focus:border-[#E8608A]/60 transition-colors"
+            className="w-full pl-9 pr-3 py-2 bg-[#181818] border border-[#2A2A2A] rounded-full text-sm text-[#F0F0F0] placeholder-[#444444] focus:outline-none focus:border-[#E8608A]/60 transition-colors"
           />
           {q && (
             <button
@@ -143,7 +140,7 @@ export default function EventFilters({ onChange }: Props) {
       </div>
 
       {/* Date presets */}
-      <div className="flex gap-2 flex-wrap items-center">
+      <div className="flex gap-2 flex-wrap">
         {DATE_PRESETS.map(({ label, days }, idx) => (
           <button
             key={label}
@@ -158,33 +155,6 @@ export default function EventFilters({ onChange }: Props) {
             {label}
           </button>
         ))}
-
-        {/* Custom date range */}
-        <div className="flex items-center gap-1.5 ml-auto text-xs text-[#666666]">
-          <input
-            type="date"
-            value={format(start, "yyyy-MM-dd")}
-            onChange={(e) => {
-              const d = new Date(e.target.value + "T00:00:00");
-              setStart(d);
-              setActivePreset(-1);
-              emit(d, end, genre, popupOnly, q);
-            }}
-            className="bg-[#181818] border border-[#2A2A2A] rounded-lg px-2 py-1 text-xs text-[#F0F0F0] focus:outline-none focus:border-[#E8608A]/50"
-          />
-          <span>–</span>
-          <input
-            type="date"
-            value={format(end, "yyyy-MM-dd")}
-            onChange={(e) => {
-              const d = new Date(e.target.value + "T23:59:59");
-              setEnd(d);
-              setActivePreset(-1);
-              emit(start, d, genre, popupOnly, q);
-            }}
-            className="bg-[#181818] border border-[#2A2A2A] rounded-lg px-2 py-1 text-xs text-[#F0F0F0] focus:outline-none focus:border-[#E8608A]/50"
-          />
-        </div>
       </div>
 
       {/* Genre pills */}

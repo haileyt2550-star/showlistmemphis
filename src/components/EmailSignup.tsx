@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Check, Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 
 export default function EmailSignup() {
   const [email, setEmail] = useState("");
@@ -31,17 +31,10 @@ export default function EmailSignup() {
   }
 
   return (
-    <div className="bg-[#181818] border border-[#2A2A2A] rounded-2xl p-6 sm:p-8 relative overflow-hidden">
-      <div className="flex items-center gap-3 mb-5">
-        <div className="w-10 h-10 rounded-full bg-[#E8608A]/10 border border-[#E8608A]/25 flex items-center justify-center">
-          <Mail className="w-4.5 h-4.5 text-[#E8608A]" />
-        </div>
-        <div>
-          <h3 className="font-semibold text-[#F0F0F0] text-[15px]">Weekly Show Digest</h3>
-          <p className="text-xs text-[#666666]">
-            Every Monday — what&apos;s happening in Memphis this week
-          </p>
-        </div>
+    <div className="bg-[#181818] border border-[#2A2A2A] rounded-2xl p-6 sm:p-8">
+      <div className="mb-5">
+        <h3 className="font-semibold text-[#F0F0F0] text-[15px] mb-1">Weekly digest</h3>
+        <p className="text-xs text-[#555555]">What&apos;s on in Memphis, every Monday.</p>
       </div>
 
       {status === "success" ? (
@@ -50,7 +43,7 @@ export default function EmailSignup() {
           You&apos;re in. See you Monday.
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex gap-2 relative">
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="email"
             value={email}

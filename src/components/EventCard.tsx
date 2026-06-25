@@ -20,6 +20,7 @@ const GENRE_THEMES: Record<string, { bg: string; color: string }> = {
   "Gospel":     { bg: "linear-gradient(135deg, #141000 0%, #201800 100%)", color: "#D4A820" },
   "Pop":        { bg: "linear-gradient(135deg, #130018 0%, #1E0026 100%)", color: "#C860C8" },
   "Folk":       { bg: "linear-gradient(135deg, #0A1005 0%, #121A08 100%)", color: "#72A04A" },
+  "Indie":      { bg: "linear-gradient(135deg, #080E18 0%, #0E1A28 100%)", color: "#6BAED6" },
   "Electronic": { bg: "linear-gradient(135deg, #001418 0%, #002028 100%)", color: "#00B898" },
   "Metal":      { bg: "linear-gradient(135deg, #060606 0%, #101010 100%)", color: "#707070" },
   "Comedy":     { bg: "linear-gradient(135deg, #141000 0%, #1E1800 100%)", color: "#D4C000" },
@@ -134,14 +135,14 @@ export default function EventCard({ event, compact = false }: Props) {
         </h3>
 
         <div className="flex flex-col gap-1 mb-3">
-          <div className="flex items-center gap-1.5 text-xs text-[#666666]">
-            <MapPin className="w-3 h-3 shrink-0 text-[#E8608A]" />
+          <div className="flex items-center gap-1.5 text-xs text-[#555555]">
+            <MapPin className="w-3 h-3 shrink-0" />
             <span className="truncate">
               {event.venue.name} — {event.venue.city}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-[#666666]">
-            <Clock className="w-3 h-3 shrink-0 text-[#E8608A]" />
+          <div className="flex items-center gap-1.5 text-xs text-[#555555]">
+            <Clock className="w-3 h-3 shrink-0" />
             <span>{time}</span>
           </div>
         </div>

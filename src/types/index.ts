@@ -52,5 +52,6 @@ export type Genre =
   | "Metal"
   | "Gospel"
   | "Soul"
+  | "Indie"
   | "Comedy"
   | "Other";

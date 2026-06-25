@@ -12,9 +12,6 @@ export default function Footer() {
             SHOWLIST
             <span className="text-[#E8608A] ml-2">MEMPHIS</span>
           </p>
-          <p className="text-xs text-[#666666] mt-1">
-            Every show in Memphis and the Mid-South, one place.
-          </p>
         </div>
 
         <div className="flex flex-col gap-1.5 text-xs text-[#666666]">
